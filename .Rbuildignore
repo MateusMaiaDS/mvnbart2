@@ -1,0 +1,6 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^R/BART_test_simulation\.R$
+^R/comparing_bart\.R$
+^R/debugg_run_arguments\.R$
+^R/hello_mv\.R$
