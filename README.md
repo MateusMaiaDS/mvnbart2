@@ -10,7 +10,7 @@ You can install the development version of mvnbart from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("MateusMaiaDS/mvnbart")
+devtools::install_github("MateusMaiaDS/mvnbart2")
 ```
 
 

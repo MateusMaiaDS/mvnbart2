@@ -26,6 +26,9 @@ struct modelParam {
         double tau_c;
         double tau_q;
         double rho;
+        double nu; // Degrees of freedom ;
+        double A_c;
+        double A_q;
 
         // MCMC spec.
         int n_mcmc;
@@ -50,7 +53,9 @@ struct modelParam {
                    double df_wish_,
                    arma::mat s_0_wish_,
                    double n_mcmc_,
-                   double n_burn_);
+                   double n_burn_,
+                   double A_c_,
+                   double A_q_);
 
 };
 

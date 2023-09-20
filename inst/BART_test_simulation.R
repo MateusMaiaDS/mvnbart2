@@ -19,7 +19,7 @@ f_true_Q <- function(X){
 
 # true covariance matrix for residuals
 sigma_c <- 10
-sigma_q <- 0.1
+sigma_q <- 10
 rho <- 0.8
 Sigma <- matrix(c(sigma_c^2,sigma_c*sigma_q*rho,sigma_c*sigma_q*rho,sigma_q^2), nrow = 2)
 Sigma_chol <- t(chol(Sigma))
@@ -76,7 +76,7 @@ mvnBart_wrapper <- function(x_train, x_test, c_train, q_train, rescale){
     mvnBart_fit <- mvnbart::mvnbart(x_train = x_train,
                                     c_train = c_rescaled, q_train = q_rescaled,
                                     x_test = x_test, scale_bool = FALSE,
-                                    n_tree = 200)
+                                    n_tree = 200,df = 10,sigquant = 0.99)
 
     c_hat_test <- (mvnBart_fit$c_hat_test + 0.5) * (max(c_train) - min(c_train)) + min(c_train)
     q_hat_test <- (mvnBart_fit$q_hat_test + 0.5) * (max(q_train) - min(q_train)) + min(q_train)
@@ -92,7 +92,7 @@ mvnBart_wrapper <- function(x_train, x_test, c_train, q_train, rescale){
     mvnBart_fit <- mvnbart::mvnbart(x_train = x_train,
                                     c_train = c_train, q_train = q_train,
                                     x_test = x_test, scale_bool = FALSE,
-                                    n_tree = 200)
+                                    n_tree = 200,df = 10)
 
     # something is wrong with the following backtransformations
     sigma_c <-  mvnBart_fit$tau_c_post^(-1/2)

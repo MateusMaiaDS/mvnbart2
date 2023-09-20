@@ -113,8 +113,13 @@ mvnbart <- function(x_train,
      nu <- df
      # solve for A
 
-     A_c <- uniroot(f = function(A){sigquant - phalft(nsigma_c, A, nu)}, interval = c(0.001,1000))$root
-     A_q <- uniroot(f = function(A){sigquant - phalft(nsigma_q, A, nu)}, interval = c(0.001,1000))$root
+     # A_c <- uniroot(f = function(A){sigquant - phalft(nsigma_c, A, nu)}, interval = c(0.0000001,1000))$root
+     # A_q <- uniroot(f = function(A){sigquant - phalft(nsigma_q, A, nu)}, interval = c(0.0000001,1000))$root
+
+     A_c <- optim(par = 0.01, f = function(A){(sigquant - phalft(nsigma_c, A, nu)^2)},
+                  method = "Brent",lower = 0.00001,upper = 100)$par
+     A_q <- optim(par = 0.01, f = function(A){(sigquant - phalft(nsigma_q, A, nu))^2},
+                  method = "Brent",lower = 0.00001,upper = 100)$par
 
      # Calculating tau hyperparam
      a_tau <- df/2
@@ -130,7 +135,7 @@ mvnbart <- function(x_train,
      # Transforming back the parameters that are going to be used as the Wishart prior
      df_wish <- 2*a_tau
      # s_0_wish <- 0.5*diag(c(rate_tau_c,rate_tau_q))
-     s_0_wish <- 0.5*diag(c(1/rate_tau_c,1/rate_tau_q))
+     s_0_wish <- 2*df_wish*diag(c(rate_tau_c,rate_tau_q))
 
 
      # Remin that this is the precision matrix
@@ -160,7 +165,9 @@ mvnbart <- function(x_train,
           tau_mu,
           tau_lambda,
           df_wish,
-          s_0_wish)
+          s_0_wish,
+          A_c,
+          A_q)
 
 
      if(scale_bool){

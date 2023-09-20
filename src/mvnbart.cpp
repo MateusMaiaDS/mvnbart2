@@ -125,7 +125,9 @@ modelParam::modelParam(arma::mat x_train_,
                        double df_wish_,
                        arma::mat s_0_wish_,
                        double n_mcmc_,
-                       double n_burn_){
+                       double n_burn_,
+                       double A_c_,
+                       double A_q_){
 
 
         // Assign the variables
@@ -140,6 +142,9 @@ modelParam::modelParam(arma::mat x_train_,
         tau_mu = tau_mu_;
         tau_lambda = tau_lambda_;
         df_wish = df_wish_;
+        A_c = A_c_;
+        A_q = A_q_;
+        nu = df_wish_;
         s_0_wish = s_0_wish_; // Precision matrix prior;
         n_mcmc = n_mcmc_;
         n_burn = n_burn_;
@@ -1724,9 +1729,24 @@ void updateP(arma::vec &c_hat,
 }
 
 
-// Updating a new prior for S_0_wish
-void update_s_0_wish(modelParam &data,
-                     )
+// // Updating a new prior for S_0_wish
+void update_s_0_wish(modelParam &data){
+
+        double shape_aux = 0.5*(data.x_train.n_rows+data.df_wish);
+        // This is defined based on the Jonas Inverse Gamma therefore we define as the rate so we do not need invert;
+        double rate_c_aux = 1/(data.A_c*data.A_c) + data.df_wish*data.tau_c;
+        double rate_q_aux = 1/(data.A_q*data.A_q) + data.df_wish*data.tau_q;
+
+        double a_c_aux = R::rgamma(shape_aux,rate_c_aux);
+        double a_q_aux = R::rgamma(shape_aux,rate_q_aux);
+
+        data.s_0_wish(0,0) = 2*data.df_wish/a_c_aux;
+        data.s_0_wish(1,1) = 2*data.df_wish/a_q_aux;
+
+
+        return;
+
+}
 
 
 
@@ -1748,7 +1768,9 @@ Rcpp::List cppbart(arma::mat x_train,
           double tau_mu,
           double tau_lambda,
           double df_wish,
-          arma::mat s_0_wish){
+          arma::mat s_0_wish,
+          double A_c,
+          double A_q){
 
         // Posterior counter
         int curr = 0;
@@ -1769,7 +1791,9 @@ Rcpp::List cppbart(arma::mat x_train,
                         df_wish,
                         s_0_wish,
                         n_mcmc,
-                        n_burn);
+                        n_burn,
+                        A_c,
+                        A_q);
 
         // Getting the n_post
         int n_post = n_mcmc - n_burn;
@@ -1992,7 +2016,7 @@ Rcpp::List cppbart(arma::mat x_train,
                 // cout << "Error on the wishart update" << endl;
                 // cout << "Prediction value C: " << prediction_train_sum_c(0) << endl;
                 // cout << "Prediction value Q: " << prediction_train_sum_q(0) << endl;
-
+                update_s_0_wish(data);
                 updateP(prediction_train_sum_c,
                         prediction_train_sum_q,
                         data);
